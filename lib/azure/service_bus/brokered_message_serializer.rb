@@ -100,8 +100,16 @@ module Azure
           end
 
           props.each do |prop_name, value|
-            parsed = JSON.parse('{ "' + prop_name + '" : ' + value + '}')
-            m.properties[prop_name] = parsed[prop_name]
+            begin
+              if value.kind_of?(String) && value =~ /\".*\"/
+                parsed = JSON.parse('{ "' + prop_name + '" : ' + value + '}')
+              else
+                parsed = JSON.parse('{ "' + prop_name + '" : "' + value.to_s + '"}')
+              end
+              m.properties[prop_name] = parsed[prop_name]
+            rescue
+              # Ignore
+            end
           end
         end
       end
